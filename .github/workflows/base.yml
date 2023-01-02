@@ -26,6 +26,7 @@ jobs:
           java-version: "11"
 
       - name: Running tests with pyspark==${{matrix.PYSPARK_VERSION}}
+        id: tests
         env:
           SPARK_VERSION: ${{matrix.PYSPARK_VERSION}}
         run: |
@@ -34,3 +35,15 @@ jobs:
           poetry install
           poetry add pyspark==$SPARK_VERSION
           poetry run python -m pytest -s tests
+
+      - name: Update commit status
+        if: always()
+        run: |
+          gh api \
+           --method POST \
+           -H "Accept: application/vnd.github+json" \
+           /repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA \
+           -f state='${{ steps.tests.outcome }}' \
+           -f target_url='https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID' \
+           -f description='Tests succeeded!' \
+           -f context='continuous-integration'
