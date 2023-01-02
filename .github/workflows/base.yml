@@ -47,3 +47,5 @@ jobs:
            -f target_url='https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID' \
            -f description='Tests succeeded!' \
            -f context='continuous-integration'
+        env:
+          GH_TOKEN: ${{ github.token }}
